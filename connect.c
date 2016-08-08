@@ -1,6 +1,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <unistd.h>
 #include <stdio.h>
 
 int connect_to_host(struct in_addr addr_value)
@@ -25,6 +26,7 @@ int connect_to_host(struct in_addr addr_value)
         server.sin_addr.s_addr = addr_value.s_addr;
         server.sin_family = AF_INET;
         server.sin_port = htons(PORT);
+        memset(&server.sin_zero, 0, sizeof(server.sin_zero));
 
         /* Connect to the remote server */
         if(connect(socket_endp, (struct sockaddr *)&server, sizeof(server)) > 0){
@@ -52,7 +54,8 @@ int connect_to_host(struct in_addr addr_value)
         server_reply[buf_size] = '\n';
         
         printf("Received %d bytes of data\n", buf_size);
-        puts(server_reply);
+
+        close(socket_endp);
 
         return 0;
 }
