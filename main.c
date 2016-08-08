@@ -9,7 +9,7 @@ int main()
         const char *ip_addr = "127.0.0.1";
 
         /* Send dot notation addr to binary */
-        if(inet_aton(ip_addr, &addr) == 0){
+        if(inet_pton(AF_INET, ip_addr, &addr) == 0){
                 puts("Error: Invalid address");
                 exit(EXIT_FAILURE);
         }
