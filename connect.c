@@ -12,6 +12,7 @@ int connect_to_host(struct in_addr addr_value)
         struct sockaddr_in server;
         char *message;
         char server_reply[REPLY_SIZE];
+        int buf_size;
 
         /* Build the socket end point */
         socket_endp = socket(AF_INET, SOCK_STREAM, 0);
@@ -34,7 +35,7 @@ int connect_to_host(struct in_addr addr_value)
         puts("Connected.\n");
 
         /* Send data */
-        message = "GET /check HTTP/1.1\r\nHost: xor.build\r\n\r\n";
+        message = "GET /check/ HTTP/1.1\r\nHost: xor.build\r\n\r\n";
         if(send(socket_endp, message, strlen(message), 0) < 0){
                 puts("Error: Sending data failed");
                 return -1;
@@ -43,12 +44,14 @@ int connect_to_host(struct in_addr addr_value)
         puts("Data Sent\n");
 
         /* Receive the data */
-        if(recv(socket_endp, server_reply, REPLY_SIZE, 0) < 0){
+        if((buf_size = recv(socket_endp, server_reply, REPLY_SIZE, 0)) < 0){
                 puts("Error: Receiving data failed");
                 return -1;
         }
+
+        server_reply[buf_size] = '\n';
         
-        puts("Received data\n");
+        printf("Received %d bytes of data\n", buf_size);
         puts(server_reply);
 
         return 0;
