@@ -9,6 +9,5 @@ prog: $(obj)
 	$(cc) -o $(outname) $^ $(flags)
 
 .PHONY: clean
-
 clean:
 	rm -f $(obj) prog
