@@ -11,6 +11,7 @@ int connect_to_host(struct in_addr addr_value)
 
         int socket_endp;
         struct sockaddr_in server;
+        char pres_ip[INET_ADDRSTRLEN];
         char *message;
         char server_reply[REPLY_SIZE];
         int buf_size;
@@ -27,6 +28,11 @@ int connect_to_host(struct in_addr addr_value)
         server.sin_family = AF_INET;
         server.sin_port = htons(PORT);
         memset(&server.sin_zero, 0, sizeof(server.sin_zero));
+
+        /* Get the presentation version of the ip */
+        inet_ntop(AF_INET, &(server.sin_addr.s_addr), pres_ip, INET_ADDRSTRLEN);
+
+        printf("Connecting to %s...\n", pres_ip);
 
         /* Connect to the remote server */
         if(connect(socket_endp, (struct sockaddr *)&server, sizeof(server)) > 0){
