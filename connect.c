@@ -1,46 +1,54 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#include <unistd.h>
-#include <stdio.h>
+#include <netdb.h>
 
-int connect_to_host(void *addr_value, int type)
+int connect_to_host(struct addrinfo *addr_i)
 {
         static const unsigned short PORT = 80;
         static const unsigned int REPLY_SIZE = 6000;
         static const int SOCK_TYPE = SOCK_STREAM;
 
         int socket_endp;
-        char pres_ip[INET6_ADDRSTRLEN];
         char *message;
         char server_reply[REPLY_SIZE];
-        int buf_size;
+        struct sockaddr *peer_addr;
+        socklen_t peer_addr_len = sizeof(struct sockaddr);
 
-        /* Get the presentational value of the IP */
-        inet_ntop(type, addr_value, pres_ip, sizeof(pres_ip));
-        printf("Connecting to %s...\n", pres_ip);
-
-        /* Build the socket endp */
-        socket_endp = socket(type, SOCK_TYPE, 0);
+        /* Build the socket */
+        socket_endp = socket(addr_i->ai_family, SOCK_TYPE, addr_i->ai_protocol);
         if(socket_endp == -1){
-                puts("Error: Problem establishing socket");
-                exit(EXIT_FAILURE);
+                puts("Error: Could not create socket");
+                return -1;
         }
         else{
-                puts("Established socket endpoint");
+                puts("Established socket...");
         }
 
-        /* Establish the connection */
-        if(connect(socket_endp, addr_value, sizeof(addr_value)) != -1){
-                puts("Error: Problem establishing connection");
-                exit(EXIT_FAILURE);
+        /* Connect to the host */
+        if(connect(socket_endp, addr_i->ai_addr, addr_i->ai_addrlen) == -1){
+                int errev = errno;
+                printf("Error: %d\n", errev);
+                return -1;
         }
         else{
-                puts("Established connection\n\n");
+                puts("Established connection...");
         }
 
-        /* Build message */
+        /* Get the peer name */
+        if(getpeername(socket_endp, peer_addr, &peer_addr_len) == -1){
+                puts("Error: Error obtaining peer information");
+                return -1;
+        }
+        else{
+                printf("Established peer name...\n");
+        }
+
+        close(socket_endp);
 
         return 1;
 }
